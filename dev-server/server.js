@@ -25,6 +25,7 @@ let matches = [
 ];
 
 let currentUser = users[0]; // 開発用の現在ユーザー
+let isAdminMode = true; // 開発用：管理者モードフラグ
 
 // ユーザー管理API
 app.post('/api/registerUser', (req, res) => {
@@ -130,6 +131,80 @@ app.post('/api/dev/switchUser', (req, res) => {
 app.post('/api/initializeSpreadsheet', (req, res) => {
     console.log('スプレッドシート初期化（モック）');
     res.json({ success: true });
+});
+
+// 管理者API
+app.get('/api/checkIsAdmin', (req, res) => {
+    res.json(isAdminMode);
+});
+
+app.get('/api/getPlayersForMatch', (req, res) => {
+    const players = users.filter(u => u.role === 'player');
+    res.json(players);
+});
+
+app.post('/api/getAssignedPlayerIds', (req, res) => {
+    const { round } = req.body;
+    const roundMatches = matches.filter(m => m.round === round);
+    const playerIds = roundMatches.flatMap(m => m.players.map(p => p.id));
+    res.json(playerIds);
+});
+
+app.post('/api/createMatchesAsAdmin', (req, res) => {
+    const { matches: matchInputs } = req.body;
+    const createdMatchIds = [];
+    const errors = [];
+
+    for (const input of matchInputs) {
+        const player1 = users.find(u => u.id === input.player1Id);
+        const player2 = users.find(u => u.id === input.player2Id);
+
+        if (!player1) {
+            errors.push(`プレイヤーID ${input.player1Id} が見つかりません`);
+            continue;
+        }
+        if (!player2) {
+            errors.push(`プレイヤーID ${input.player2Id} が見つかりません`);
+            continue;
+        }
+
+        // 重複チェック
+        const roundMatches = matches.filter(m => m.round === input.round);
+        const assignedIds = roundMatches.flatMap(m => m.players.map(p => p.id));
+
+        if (assignedIds.includes(input.player1Id)) {
+            errors.push(`${player1.name} は既にラウンド${input.round}に参加しています`);
+            continue;
+        }
+        if (assignedIds.includes(input.player2Id)) {
+            errors.push(`${player2.name} は既にラウンド${input.round}に参加しています`);
+            continue;
+        }
+
+        const newMatch = {
+            id: matches.length + 1,
+            round: input.round,
+            players: [player1, player2],
+            winner: null,
+            isFinished: false
+        };
+
+        matches.push(newMatch);
+        createdMatchIds.push(newMatch.id);
+    }
+
+    res.json({
+        success: errors.length === 0,
+        createdMatchIds,
+        errors
+    });
+});
+
+// 開発用：管理者モード切り替え
+app.post('/api/dev/setAdminMode', (req, res) => {
+    const { isAdmin } = req.body;
+    isAdminMode = isAdmin;
+    res.json({ isAdminMode });
 });
 
 app.listen(PORT, () => {

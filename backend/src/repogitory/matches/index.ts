@@ -218,4 +218,39 @@ export class MatchRepository {
 
         return null;
     }
+
+    /**
+     * 指定ラウンドで既に対戦が組まれているプレイヤーIDのリストを取得
+     */
+    getAssignedPlayerIds(round: number): number[] {
+        const matchesData = this.matchesSheet.getDataRange().getValues();
+        const opponentsData = this.opponentsSheet.getDataRange().getValues();
+
+        const matchIdsInRound: number[] = [];
+
+        // 指定ラウンドの試合IDを取得
+        for (let i = 1; i < matchesData.length; i++) {
+            const row = matchesData[i];
+            const matchId = Number(row[0]);
+            const matchRound = Number(row[1]);
+
+            if (matchRound === round) {
+                matchIdsInRound.push(matchId);
+            }
+        }
+
+        // そのラウンドの試合に参加しているプレイヤーIDを取得
+        const playerIds: number[] = [];
+        for (let i = 1; i < opponentsData.length; i++) {
+            const row = opponentsData[i];
+            const matchId = Number(row[0]);
+            const playerId = Number(row[1]);
+
+            if (matchIdsInRound.includes(matchId)) {
+                playerIds.push(playerId);
+            }
+        }
+
+        return playerIds;
+    }
 }

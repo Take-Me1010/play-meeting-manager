@@ -15,6 +15,11 @@ import {
     reportMatchResult,
     getCurrentUserMatches
 } from './controller/matchController';
+import {
+    getPlayersForMatch,
+    getAssignedPlayerIds,
+    createMatchesAsAdmin
+} from './controller/adminController';
 
 global.doGet = doGet;
 global.initializeSpreadsheet = initializeSpreadsheet;
@@ -31,3 +36,7 @@ global.getMatch = getMatch;
 global.createMatch = createMatch;
 global.reportMatchResult = reportMatchResult;
 global.getCurrentUserMatches = getCurrentUserMatches;
+
+global.getPlayersForMatch = getPlayersForMatch;
+global.getAssignedPlayerIds = getAssignedPlayerIds;
+global.createMatchesAsAdmin = createMatchesAsAdmin;

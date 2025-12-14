@@ -1,3 +1,4 @@
+import { isAdmin } from "../auth/admin";
 
 export default doGet;
 
@@ -13,7 +14,6 @@ function doGet() {
 
 function createTemplate() {
     const template = HtmlService.createTemplateFromFile('index');
-    // const email = Session.getActiveUser().getEmail();
-
+    template.isAdmin = isAdmin();
     return template
 }
