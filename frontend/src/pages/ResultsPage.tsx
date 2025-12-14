@@ -17,6 +17,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Chip,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -123,31 +124,49 @@ export default function ResultsPage() {
                     <TableRow key={match.id}>
                       <TableCell>
                         <Stack spacing={0.5}>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontWeight:
-                                match.isFinished &&
-                                match.winner?.id === match.players[0].id
-                                  ? "bold"
-                                  : "normal",
-                            }}
-                          >
-                            {match.players[0].name}
-                          </Typography>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight:
+                                  match.isFinished &&
+                                  match.winner?.id === match.players[0].id
+                                    ? "bold"
+                                    : "normal",
+                              }}
+                            >
+                              {match.players[0].name}
+                            </Typography>
+                            <Chip
+                              label={match.players[0].style}
+                              variant="outlined"
+                              size="small"
+                              color={match.players[0].style === "環境" ? "primary" : "secondary"}
+                              sx={{ fontSize: "0.7rem", height: 20 }}
+                            />
+                          </Stack>
                           <Divider />
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontWeight:
-                                match.isFinished &&
-                                match.winner?.id === match.players[1].id
-                                  ? "bold"
-                                  : "normal",
-                            }}
-                          >
-                            {match.players[1].name}
-                          </Typography>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight:
+                                  match.isFinished &&
+                                  match.winner?.id === match.players[1].id
+                                    ? "bold"
+                                    : "normal",
+                              }}
+                            >
+                              {match.players[1].name}
+                            </Typography>
+                            <Chip
+                              label={match.players[1].style}
+                              variant="outlined"
+                              size="small"
+                              color={match.players[1].style === "環境" ? "primary" : "secondary"}
+                              sx={{ fontSize: "0.7rem", height: 20 }}
+                            />
+                          </Stack>
                         </Stack>
                       </TableCell>
                       <TableCell align="center">

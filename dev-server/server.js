@@ -9,8 +9,8 @@ app.use(express.json());
 
 // モックデータ
 let users = [
-    { id: 1, name: "テストユーザー1", role: "player" },
-    { id: 2, name: "テストユーザー2", role: "player" },
+    { id: 1, name: "テストユーザー1", role: "player", style: "環境" },
+    { id: 2, name: "テストユーザー2", role: "player", style: "カジュアル" },
     { id: 3, name: "観戦者", role: "observer" }
 ];
 

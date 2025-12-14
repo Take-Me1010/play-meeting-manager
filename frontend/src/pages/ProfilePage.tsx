@@ -28,6 +28,9 @@ export default function ProfilePage() {
   const [role, setRole] = useState<"player" | "observer">(
     user?.role || "player",
   );
+  const [style, setStyle] = useState<"環境" | "カジュアル">(
+    user?.style || "環境",
+  );
   const [localError, setLocalError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -42,14 +45,14 @@ export default function ProfilePage() {
     }
 
     try {
-      await updateUser({ name: name.trim(), role });
+      await updateUser({ name: name.trim(), role, style });
       setSuccess(true);
     } catch {
       // エラーはAuthContextで処理される
     }
   };
 
-  const hasChanges = name !== user?.name || role !== user?.role;
+  const hasChanges = name !== user?.name || role !== user?.role || style !== user?.style;
 
   return (
     <Layout>
@@ -104,6 +107,29 @@ export default function ProfilePage() {
                   value="observer"
                   control={<Radio />}
                   label="観戦者（観戦のみ）"
+                  disabled={isLoading}
+                />
+              </RadioGroup>
+            </FormControl>
+
+            <FormControl component="fieldset" sx={{ mt: 2, width: "100%" }}>
+              <FormLabel component="legend">デッキランク</FormLabel>
+              <RadioGroup
+                value={style}
+                onChange={(e) =>
+                  setStyle(e.target.value as "環境" | "カジュアル")
+                }
+              >
+                <FormControlLabel
+                  value="環境"
+                  control={<Radio />}
+                  label="環境デッキ"
+                  disabled={isLoading}
+                />
+                <FormControlLabel
+                  value="カジュアル"
+                  control={<Radio />}
+                  label="カジュアルデッキ"
                   disabled={isLoading}
                 />
               </RadioGroup>

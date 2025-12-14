@@ -21,7 +21,7 @@ export class UserRepository {
         const emailColIndex = headerRow.indexOf('email');
 
         if (emailColIndex === -1) {
-            throw new Error('emailL�dK�~[�');
+            throw new Error('emailカラムが見つかりません');
         }
 
         for (let i = 1; i < data.length; i++) {
@@ -30,7 +30,8 @@ export class UserRepository {
                 return {
                     id: Number(row[0]),
                     name: String(row[1]),
-                    role: row[3] as 'player' | 'observer'
+                    role: row[3] as 'player' | 'observer',
+                    style: row[4] as '環境' | 'カジュアル'
                 };
             }
         }
@@ -47,7 +48,8 @@ export class UserRepository {
                 return {
                     id: Number(row[0]),
                     name: String(row[1]),
-                    role: row[3] as 'player' | 'observer'
+                    role: row[3] as 'player' | 'observer',
+                    style: row[4] as '環境' | 'カジュアル'
                 };
             }
         }
@@ -61,11 +63,12 @@ export class UserRepository {
 
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
-            if (row[0] && row[1]) { // idhnameLX(Y�4n
+            if (row[0] && row[1]) { // idとnameが存在する行のみ
                 users.push({
                     id: Number(row[0]),
                     name: String(row[1]),
-                    role: row[3] as 'player' | 'observer'
+                    role: row[3] as 'player' | 'observer',
+                    style: row[4] as '環境' | 'カジュアル'
                 });
             }
         }
@@ -73,22 +76,22 @@ export class UserRepository {
         return users;
     }
 
-    create(name: string, email: string, role: 'player' | 'observer'): User {
+    create(name: string, email: string, role: 'player' | 'observer', style: '環境' | 'カジュアル'): User {
         const id = this.generateId();
-        const newUser: User = { id, name, role };
+        const newUser: User = { id, name, role, style };
 
-        this.sheet.appendRow([id, name, email, role]);
+        this.sheet.appendRow([id, name, email, role, style]);
 
         return newUser;
     }
 
-    update(id: number, updates: Partial<Pick<User, 'name' | 'role'>>): User | null {
+    update(id: number, updates: Partial<Pick<User, 'name' | 'role' | 'style'>>): User | null {
         const data = this.sheet.getDataRange().getValues();
 
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
             if (Number(row[0]) === id) {
-                const rowRange = this.sheet.getRange(i + 1, 1, 1, 4);
+                const rowRange = this.sheet.getRange(i + 1, 1, 1, 5);
                 const updatedRow = [...row];
 
                 if (updates.name !== undefined) {
@@ -97,13 +100,17 @@ export class UserRepository {
                 if (updates.role !== undefined) {
                     updatedRow[3] = updates.role;
                 }
+                if (updates.style !== undefined) {
+                    updatedRow[4] = updates.style;
+                }
 
                 rowRange.setValues([updatedRow]);
 
                 return {
                     id: Number(updatedRow[0]),
                     name: String(updatedRow[1]),
-                    role: updatedRow[3] as 'player' | 'observer'
+                    role: updatedRow[3] as 'player' | 'observer',
+                    style: updatedRow[4] as '環境' | 'カジュアル'
                 };
             }
         }

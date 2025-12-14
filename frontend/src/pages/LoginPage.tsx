@@ -22,6 +22,7 @@ export default function LoginPage() {
   const { login, isLoading, error } = useAuth();
   const [name, setName] = useState("");
   const [role, setRole] = useState<"player" | "observer">("player");
+  const [style, setStyle] = useState<"環境" | "カジュアル">("環境");
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +35,7 @@ export default function LoginPage() {
     }
 
     try {
-      await login(name.trim(), role);
+      await login(name.trim(), role, style);
       navigate("/");
     } catch {
       // エラーはAuthContextで処理される
@@ -106,6 +107,29 @@ export default function LoginPage() {
                   value="observer"
                   control={<Radio />}
                   label="観戦者（観戦のみ）"
+                  disabled={isLoading}
+                />
+              </RadioGroup>
+            </FormControl>
+
+            <FormControl component="fieldset" sx={{ mt: 2, width: "100%" }}>
+              <FormLabel component="legend">デッキランク</FormLabel>
+              <RadioGroup
+                value={style}
+                onChange={(e) =>
+                  setStyle(e.target.value as "環境" | "カジュアル")
+                }
+              >
+                <FormControlLabel
+                  value="環境"
+                  control={<Radio />}
+                  label="環境デッキ"
+                  disabled={isLoading}
+                />
+                <FormControlLabel
+                  value="カジュアル"
+                  control={<Radio />}
+                  label="カジュアルデッキ"
                   disabled={isLoading}
                 />
               </RadioGroup>

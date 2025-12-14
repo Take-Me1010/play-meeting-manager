@@ -121,17 +121,25 @@ function MatchCard({ match }: { match: Match }) {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Typography
-              variant="body1"
-              sx={{
-                fontWeight:
-                  match.isFinished && match.winner?.id === player1.id
-                    ? "bold"
-                    : "normal",
-              }}
-            >
-              {player1.name}
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight:
+                    match.isFinished && match.winner?.id === player1.id
+                      ? "bold"
+                      : "normal",
+                }}
+              >
+                {player1.name}
+              </Typography>
+              <Chip
+                label={player1.style}
+                variant="outlined"
+                size="small"
+                color={player1.style === "環境" ? "primary" : "secondary"}
+              />
+            </Stack>
             {match.isFinished && match.winner?.id === player1.id && (
               <TrophyIcon sx={{ color: "warning.main" }} />
             )}
@@ -148,17 +156,25 @@ function MatchCard({ match }: { match: Match }) {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Typography
-              variant="body1"
-              sx={{
-                fontWeight:
-                  match.isFinished && match.winner?.id === player2.id
-                    ? "bold"
-                    : "normal",
-              }}
-            >
-              {player2.name}
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight:
+                    match.isFinished && match.winner?.id === player2.id
+                      ? "bold"
+                      : "normal",
+                }}
+              >
+                {player2.name}
+              </Typography>
+              <Chip
+                label={player2.style}
+                variant="outlined"
+                size="small"
+                color={player2.style === "環境" ? "primary" : "secondary"}
+              />
+            </Stack>
             {match.isFinished && match.winner?.id === player2.id && (
               <TrophyIcon sx={{ color: "warning.main" }} />
             )}

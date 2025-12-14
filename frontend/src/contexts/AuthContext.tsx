@@ -14,8 +14,8 @@ type AuthContextType = {
   isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (name: string, role: "player" | "observer") => Promise<void>;
-  updateUser: (updates: Partial<Pick<User, "name" | "role">>) => Promise<void>;
+  login: (name: string, role: "player" | "observer", style: "環境" | "カジュアル") => Promise<void>;
+  updateUser: (updates: Partial<Pick<User, "name" | "role" | "style">>) => Promise<void>;
   refresh: () => Promise<void>;
 };
 
@@ -57,11 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ログイン（新規ユーザー登録）
   const login = useCallback(
-    async (name: string, role: "player" | "observer") => {
+    async (name: string, role: "player" | "observer", style: "環境" | "カジュアル") => {
       setIsLoading(true);
       setError(null);
       try {
-        const newUser = await gasApi.registerUser(name, role);
+        const newUser = await gasApi.registerUser(name, role, style);
         setUser(newUser);
       } catch (err) {
         setError(
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ユーザー情報更新
   const updateUser = useCallback(
-    async (updates: Partial<Pick<User, "name" | "role">>) => {
+    async (updates: Partial<Pick<User, "name" | "role" | "style">>) => {
       setIsLoading(true);
       setError(null);
       try {

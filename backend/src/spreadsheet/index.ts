@@ -22,7 +22,7 @@ function createUsersSheet(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet)
     }
 
     // ヘッダー行を設定
-    const headers = ['id', 'name', 'email', 'role'];
+    const headers = ['id', 'name', 'email', 'role', 'style'];
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
     // ヘッダー行をフリーズして太字にする
@@ -34,6 +34,7 @@ function createUsersSheet(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet)
     sheet.setColumnWidth(2, 150); // name
     sheet.setColumnWidth(3, 200); // email
     sheet.setColumnWidth(4, 100); // role
+    sheet.setColumnWidth(5, 100); // style
 }
 
 function createMatchesSheet(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {

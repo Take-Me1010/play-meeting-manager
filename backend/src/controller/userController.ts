@@ -4,7 +4,7 @@ import { type User } from '../entity';
 export class UserController {
     private userRepo = new UserRepository();
 
-    registerUser(name: string, role: 'player' | 'observer'): User {
+    registerUser(name: string, role: 'player' | 'observer', style: '環境' | 'カジュアル'): User {
         const email = Session.getActiveUser().getEmail();
 
         if (!email) {
@@ -16,7 +16,7 @@ export class UserController {
             throw new Error('このメールアドレスは既に登録されています');
         }
 
-        return this.userRepo.create(name, email, role);
+        return this.userRepo.create(name, email, role, style);
     }
 
     getCurrentUser(): User | null {
@@ -33,7 +33,7 @@ export class UserController {
         return this.userRepo.findAll();
     }
 
-    updateUser(updates: Partial<Pick<User, 'name' | 'role'>>): User | null {
+    updateUser(updates: Partial<Pick<User, 'name' | 'role' | 'style'>>): User | null {
         const email = Session.getActiveUser().getEmail();
 
         if (!email) {
@@ -54,9 +54,9 @@ export class UserController {
 }
 
 // GAS用のグローバル関数をエクスポート
-export function registerUser(name: string, role: 'player' | 'observer') {
+export function registerUser(name: string, role: 'player' | 'observer', style: '環境' | 'カジュアル') {
     const controller = new UserController();
-    return controller.registerUser(name, role);
+    return controller.registerUser(name, role, style);
 }
 
 export function getCurrentUser() {
@@ -69,7 +69,7 @@ export function getAllUsers() {
     return controller.getAllUsers();
 }
 
-export function updateUser(updates: Partial<Pick<User, 'name' | 'role'>>) {
+export function updateUser(updates: Partial<Pick<User, 'name' | 'role' | 'style'>>) {
     const controller = new UserController();
     return controller.updateUser(updates);
 }

@@ -1,24 +1,12 @@
 import type { User, Match } from "../types";
 
-type MatchInput = {
-  round: number;
-  player1Id: number;
-  player2Id: number;
-};
-
-type CreateMatchesResult = {
-  success: boolean;
-  createdMatchIds: number[];
-  errors: string[];
-};
-
 interface GasApiInterface {
   initializeSpreadsheet(): Promise<void>;
-  registerUser(name: string, role: "player" | "observer"): Promise<User>;
+  registerUser(name: string, role: "player" | "observer", style: "環境" | "カジュアル"): Promise<User>;
   getCurrentUser(): Promise<User | null>;
   getAllUsers(): Promise<User[]>;
   updateUser(
-    updates: Partial<Pick<User, "name" | "role">>,
+    updates: Partial<Pick<User, "name" | "role" | "style">>,
   ): Promise<User | null>;
   getUserById(id: number): Promise<User | null>;
   getMatchesByRound(round: number): Promise<Match[]>;
@@ -27,10 +15,6 @@ interface GasApiInterface {
   createMatch(round: number, playerIds: number[]): Promise<number>;
   reportMatchResult(matchId: number, winnerId: number): Promise<boolean>;
   getCurrentUserMatches(): Promise<Match[]>;
-  // Admin APIs
-  getPlayersForMatch(): Promise<User[]>;
-  getAssignedPlayerIds(round: number): Promise<number[]>;
-  createMatchesAsAdmin(matches: MatchInput[]): Promise<CreateMatchesResult>;
 }
 
 class ProductionGasApi implements GasApiInterface {
@@ -48,8 +32,8 @@ class ProductionGasApi implements GasApiInterface {
     return this.callGas("initializeSpreadsheet");
   }
 
-  async registerUser(name: string, role: "player" | "observer"): Promise<User> {
-    return this.callGas("registerUser", name, role);
+  async registerUser(name: string, role: "player" | "observer", style: "環境" | "カジュアル"): Promise<User> {
+    return this.callGas("registerUser", name, role, style);
   }
 
   async getCurrentUser(): Promise<User | null> {
@@ -61,7 +45,7 @@ class ProductionGasApi implements GasApiInterface {
   }
 
   async updateUser(
-    updates: Partial<Pick<User, "name" | "role">>,
+    updates: Partial<Pick<User, "name" | "role" | "style">>,
   ): Promise<User | null> {
     return this.callGas("updateUser", updates);
   }
@@ -92,20 +76,6 @@ class ProductionGasApi implements GasApiInterface {
 
   async getCurrentUserMatches(): Promise<Match[]> {
     return this.callGas("getCurrentUserMatches");
-  }
-
-  async getPlayersForMatch(): Promise<User[]> {
-    return this.callGas("getPlayersForMatch");
-  }
-
-  async getAssignedPlayerIds(round: number): Promise<number[]> {
-    return this.callGas("getAssignedPlayerIds", round);
-  }
-
-  async createMatchesAsAdmin(
-    matches: MatchInput[],
-  ): Promise<CreateMatchesResult> {
-    return this.callGas("createMatchesAsAdmin", matches);
   }
 }
 
@@ -138,10 +108,10 @@ class MockGasApi implements GasApiInterface {
     await this.fetchApi("/initializeSpreadsheet", { method: "POST" });
   }
 
-  async registerUser(name: string, role: "player" | "observer"): Promise<User> {
+  async registerUser(name: string, role: "player" | "observer", style: "環境" | "カジュアル"): Promise<User> {
     return this.fetchApi("/registerUser", {
       method: "POST",
-      body: JSON.stringify({ name, role }),
+      body: JSON.stringify({ name, role, style }),
     });
   }
 
@@ -154,7 +124,7 @@ class MockGasApi implements GasApiInterface {
   }
 
   async updateUser(
-    updates: Partial<Pick<User, "name" | "role">>,
+    updates: Partial<Pick<User, "name" | "role" | "style">>,
   ): Promise<User | null> {
     return this.fetchApi("/updateUser", {
       method: "POST",
@@ -211,15 +181,6 @@ class MockGasApi implements GasApiInterface {
     return this.fetchApi("/getAssignedPlayerIds", {
       method: "POST",
       body: JSON.stringify({ round }),
-    });
-  }
-
-  async createMatchesAsAdmin(
-    matches: MatchInput[],
-  ): Promise<CreateMatchesResult> {
-    return this.fetchApi("/createMatchesAsAdmin", {
-      method: "POST",
-      body: JSON.stringify({ matches }),
     });
   }
 

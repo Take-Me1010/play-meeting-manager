@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogActions,
   Divider,
+  Chip,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -133,13 +134,33 @@ export default function ReportPage() {
             </Typography>
 
             <Stack spacing={1} sx={{ mb: 3 }}>
-              <Typography textAlign="center">{user?.name}</Typography>
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                <Typography textAlign="center">{user?.name}</Typography>
+                {user?.style && (
+                  <Chip
+                    label={user.style}
+                    variant="outlined"
+                    size="small"
+                    color={user.style === "環境" ? "primary" : "secondary"}
+                  />
+                )}
+              </Stack>
               <Divider>
                 <Typography variant="caption" color="text.secondary">
                   VS
                 </Typography>
               </Divider>
-              <Typography textAlign="center">{opponent?.name}</Typography>
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                <Typography textAlign="center">{opponent?.name}</Typography>
+                {opponent?.style && (
+                  <Chip
+                    label={opponent.style}
+                    variant="outlined"
+                    size="small"
+                    color={opponent.style === "環境" ? "primary" : "secondary"}
+                  />
+                )}
+              </Stack>
             </Stack>
 
             <Typography

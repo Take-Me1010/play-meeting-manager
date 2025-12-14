@@ -3,6 +3,7 @@ export type User = {
     id: number;
     name: string;
     role: 'player' | 'observer';
+    style: '環境' | 'カジュアル';
 }
 
 export type Match = {
