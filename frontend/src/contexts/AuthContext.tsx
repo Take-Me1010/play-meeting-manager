@@ -23,12 +23,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  /**
-   * NOTE: テンプレート文字列として、GAS側でisAdmin変数を埋め込む
-   */
-  const [isAdmin, setIsAdmin] = useState(
-    "<?!= isAdmin ?>".toLowerCase() === "true",
-  );
+
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

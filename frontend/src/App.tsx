@@ -15,7 +15,6 @@ import {
   ReportPage,
   ResultsPage,
 } from "./pages";
-import CreateMatchesPage from "./pages/admin/CreateMatchesPage";
 import { DevPanel } from "./components/DevPanel";
 
 // 認証が必要なルートのラッパー
@@ -64,20 +63,6 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-}
-
-function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin } = useAuth();
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!isAdmin) {
     return <Navigate to="/" replace />;
   }
 
@@ -133,14 +118,6 @@ function AppRoutes() {
           <ProtectedRoute>
             <ResultsPage />
           </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/create-matches"
-        element={
-          <AdminRoute>
-            <CreateMatchesPage />
-          </AdminRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
