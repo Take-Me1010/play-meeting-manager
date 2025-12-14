@@ -1,0 +1,14 @@
+
+dist
+!dist/appsscript.json
+.clasp.json
+
+node_modules
+# Logs
+logs
+*.log*
+*.local
+
+# Editor directories and files
+.vscode/*
+.claude/settings.local.json

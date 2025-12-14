@@ -1,0 +1,19 @@
+{
+  "name": "play-meeting-manager",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.25.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm run gen-dts && pnpm run build:backend && pnpm run build:frontend",
+    "build:frontend": "pnpm --filter frontend run build",
+    "build:backend": "pnpm --filter backend run build",
+    "gen-dts": "pnpm --filter backend run gen-dts",
+    "dev:frontend": "pnpm --filter frontend run dev",
+    "dev:server": "pnpm --filter dev-server run dev",
+    "start:server": "pnpm --filter dev-server start",
+    "deploy": "clasp push",
+    "clean": "rm -rf dist/*"
+  },
+  "devDependencies": {}
+}
