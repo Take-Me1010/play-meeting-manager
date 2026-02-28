@@ -8,6 +8,7 @@ import { useAllMatches } from "../../../hooks/useAllMatches";
 import { PageHeader } from "./PageHeader";
 import { MatchEditor } from "./MatchEditor";
 import type { MatchDraft, RoundData } from "./types";
+import { useAdminMatch } from "../../../hooks/admin/useMatch";
 
 /** API から取得した matches と players を元に回戦別の編集状態を構築する */
 function buildRoundsFromMatches(
@@ -50,7 +51,8 @@ function buildRoundsFromMatches(
 const Content: React.FC<{
   users: User[];
   matches: Match[];
-}> = ({ users, matches }) => {
+  onSave: (round: number, data: RoundData) => void;
+}> = ({ users, matches, onSave }) => {
   const navigate = useNavigate();
 
   const initialRounds = buildRoundsFromMatches(matches, users);
@@ -74,7 +76,7 @@ const Content: React.FC<{
 
   function handleSave(data: RoundData) {
     setRounds((prev) => ({ ...prev, [currentRound]: data }));
-    console.log("保存:", data);
+    onSave(currentRound, data);
   }
 
   const maxRound = Math.max(...Object.keys(rounds).map(Number));
@@ -111,22 +113,37 @@ export const CreateMatchesPage = () => {
 
   const {
     matches,
+    refresh,
     isLoading: matchesLoading,
     error: matchesError,
   } = useAllMatches();
 
-  const isLoading = usersLoading || matchesLoading;
+  const {
+    syncMatches,
+    isLoading: syncLoading,
+    error: syncError,
+  } = useAdminMatch();
+
+  const onSave = async (round: number, data: RoundData) => {
+    try {
+      await syncMatches(
+        round,
+        data.drafts.map((d) => ({ playerIds: d.slots.map((s) => s?.id ?? 0) })),
+      );
+      await refresh();
+    } catch {
+      // エラーは useAdminMatch 内で state にセットされるのでここでは何もしない
+    }
+  };
+
+  const isLoading = usersLoading || matchesLoading || syncLoading;
+  const error = usersError ?? matchesError ?? syncError;
 
   return (
     <Layout maxWidth="lg">
-      {usersError && (
+      {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {usersError.message}
-        </Alert>
-      )}
-      {matchesError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {matchesError.message}
+          {error.message}
         </Alert>
       )}
       {isLoading ? (
@@ -142,6 +159,7 @@ export const CreateMatchesPage = () => {
           }
           users={players}
           matches={matches}
+          onSave={onSave}
         />
       )}
     </Layout>

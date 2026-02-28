@@ -230,6 +230,33 @@ app.post('/api/createMatchesAsAdmin', (req, res) => {
     });
 });
 
+app.post('/api/syncMatches', (req, res) => {
+    const { round, matches: matchInputs } = req.body;
+
+    const roundMatches = matches.filter(m => m.round === round);
+    if (roundMatches.some(m => m.isFinished)) {
+        return res.status(400).json({ error: '終了した試合があるため、このラウンドは同期できません' });
+    }
+
+    matches = matches.filter(m => m.round !== round);
+
+    const createdIds = [];
+    for (const input of matchInputs) {
+        const players = users.filter(u => input.playerIds.includes(u.id));
+        const newMatch = {
+            id: matches.length + 1,
+            round,
+            players,
+            winner: null,
+            isFinished: false
+        };
+        matches.push(newMatch);
+        createdIds.push(newMatch.id);
+    }
+
+    res.json(createdIds);
+});
+
 // 開発用：管理者モード切り替え
 app.post('/api/dev/setAdminMode', (req, res) => {
     const { isAdmin } = req.body;

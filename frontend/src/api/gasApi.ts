@@ -2,7 +2,11 @@ import type { User, Match } from "../types";
 
 interface GasApiInterface {
   initializeSpreadsheet(): Promise<void>;
-  registerUser(name: string, role: "player" | "observer", style: "環境" | "カジュアル"): Promise<User>;
+  registerUser(
+    name: string,
+    role: "player" | "observer",
+    style: "環境" | "カジュアル",
+  ): Promise<User>;
   getCurrentUser(): Promise<User | null>;
   getAllUsers(): Promise<User[]>;
   updateUser(
@@ -10,20 +14,21 @@ interface GasApiInterface {
   ): Promise<User | null>;
   getUserById(id: number): Promise<User | null>;
   getAllMatches(): Promise<Match[]>;
-  createMatch(round: number, playerIds: number[]): Promise<number>;
-  updateMatchPlayers(matchId: number, playerIds: number[]): Promise<boolean>;
-  deleteMatch(matchId: number): Promise<boolean>;
+  syncMatches(round: number, matches: { playerIds: number[] }[]): Promise<void>;
   reportMatchResult(matchId: number, winnerId: number): Promise<boolean>;
   getCurrentUserMatches(): Promise<Match[]>;
 }
 
 class ProductionGasApi implements GasApiInterface {
-  private callGas<T, S extends keyof google.script.IRun>(funcName: S, ...args: Parameters<google.script.IRun[S]>): Promise<T> {
+  private callGas<T, S extends keyof google.script.IRun>(
+    funcName: S,
+    ...args: Parameters<google.script.IRun[S]>
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
       google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)
-      // @ts-expect-error TS2556
+        .withSuccessHandler(resolve)
+        .withFailureHandler(reject)
+        // @ts-expect-error TS2556
         [funcName](...args);
     });
   }
@@ -32,7 +37,11 @@ class ProductionGasApi implements GasApiInterface {
     return this.callGas("initializeSpreadsheet");
   }
 
-  async registerUser(name: string, role: "player" | "observer", style: "環境" | "カジュアル"): Promise<User> {
+  async registerUser(
+    name: string,
+    role: "player" | "observer",
+    style: "環境" | "カジュアル",
+  ): Promise<User> {
     return this.callGas("registerUser", name, role, style);
   }
 
@@ -58,16 +67,11 @@ class ProductionGasApi implements GasApiInterface {
     return this.callGas("getAllMatches");
   }
 
-  async createMatch(round: number, playerIds: number[]): Promise<number> {
-    return this.callGas("createMatch", round, playerIds);
-  }
-
-  async updateMatchPlayers(matchId: number, playerIds: number[]): Promise<boolean> {
-    return this.callGas("updateMatchPlayers", matchId, playerIds);
-  }
-
-  async deleteMatch(matchId: number): Promise<boolean> {
-    return this.callGas("deleteMatch", matchId);
+  async syncMatches(
+    round: number,
+    matches: { playerIds: number[] }[],
+  ): Promise<void> {
+    return this.callGas("syncMatches", round, matches);
   }
 
   async reportMatchResult(matchId: number, winnerId: number): Promise<boolean> {
@@ -108,7 +112,11 @@ class MockGasApi implements GasApiInterface {
     await this.fetchApi("/initializeSpreadsheet", { method: "POST" });
   }
 
-  async registerUser(name: string, role: "player" | "observer", style: "環境" | "カジュアル"): Promise<User> {
+  async registerUser(
+    name: string,
+    role: "player" | "observer",
+    style: "環境" | "カジュアル",
+  ): Promise<User> {
     return this.fetchApi("/registerUser", {
       method: "POST",
       body: JSON.stringify({ name, role, style }),
@@ -140,24 +148,13 @@ class MockGasApi implements GasApiInterface {
     return this.fetchApi("/getAllMatches");
   }
 
-  async createMatch(round: number, playerIds: number[]): Promise<number> {
-    return this.fetchApi("/createMatch", {
+  async syncMatches(
+    round: number,
+    matches: { playerIds: number[] }[],
+  ): Promise<void> {
+    return this.fetchApi("/syncMatches", {
       method: "POST",
-      body: JSON.stringify({ round, playerIds }),
-    });
-  }
-
-  async updateMatchPlayers(matchId: number, playerIds: number[]): Promise<boolean> {
-    return this.fetchApi("/updateMatchPlayers", {
-      method: "POST",
-      body: JSON.stringify({ matchId, playerIds }),
-    });
-  }
-
-  async deleteMatch(matchId: number): Promise<boolean> {
-    return this.fetchApi("/deleteMatch", {
-      method: "POST",
-      body: JSON.stringify({ matchId }),
+      body: JSON.stringify({ round, matches }),
     });
   }
 

@@ -17,7 +17,10 @@ export class MatchRepository {
   /**[match_id, user_id] */
   private getRawOpponents() {
     // 1行目はヘッダーなのでスキップ
-    return this.opponentsSheet.getDataRange().getValues().slice(1) as [number, number][];
+    return this.opponentsSheet.getDataRange().getValues().slice(1) as [
+      number,
+      number,
+    ][];
   }
   private resultsSheet = getSheet("match_results");
   /**[match_id, winner_id, finished] */
@@ -119,6 +122,83 @@ export class MatchRepository {
     // match_resultsには何も追加しない（結果登録時にINSERTする）
 
     return matchId;
+  }
+
+  createBulkMatches(
+    round: number,
+    matches: { playerIds: number[] }[],
+  ): number[] {
+    const firstMatchId = this.generateId();
+    this.matchesSheet
+      .getDataRange()
+      .offset(this.matchesSheet.getLastRow(), 0, matches.length, 3)
+      .setValues(
+        matches.map((_, index) => [firstMatchId + index, round, false]),
+      );
+    this.opponentsSheet
+      .getDataRange()
+      .offset(
+        this.opponentsSheet.getLastRow(),
+        0,
+        matches.reduce((sum, m) => sum + m.playerIds.length, 0),
+        2,
+      )
+      .setValues(
+        matches.flatMap((match, index) =>
+          match.playerIds.map((playerId) => [firstMatchId + index, playerId]),
+        ),
+      );
+
+    return matches.map((_, index) => firstMatchId + index);
+  }
+
+  /**バルク削除を行う。結果の登録は削除しないので、呼び出す前に確認すること */
+  deleteBulkMatch(matchIds: number[]): boolean {
+    const rawMatches = this.getRawMatches();
+    // 効率的に削除するために、隣接している行をまとめて削除する
+    // 処理は 0-index で行うが、行番号は 1-index で、更にヘッダー行分もあるので、最後に + 2 する必要があることに注意
+    const targets: {
+      match: Parameters<GoogleAppsScript.Spreadsheet.Sheet["deleteRows"]>[];
+      opponents: Parameters<GoogleAppsScript.Spreadsheet.Sheet["deleteRows"]>[];
+    } = { match: [], opponents: [] };
+
+    for (let i = 0; i < rawMatches.length; i++) {
+      const line = rawMatches[i];
+      if (!matchIds.includes(line[0])) {
+        continue;
+      }
+      const lastTarget = targets.match[targets.match.length - 1];
+      // 例: lastTarget: [0, 1], i = 1 で、これが削除対象なら [0, 2] にする
+      // 例: lastTarget: [0, 2], i = 3 で、これが削除対象なら、i = 2 が対象外だったということなので targets.push([3, 1]) になる
+      if (lastTarget && lastTarget[0] + lastTarget[1] === i) {
+        lastTarget[1]++;
+      } else {
+        targets.match.push([i, 1]);
+      }
+    }
+
+    const rawOpponents = this.getRawOpponents();
+    for (let i = 0; i < rawOpponents.length; i++) {
+      const line = rawOpponents[i];
+      if (!matchIds.includes(line[0])) {
+        continue;
+      }
+      const lastTarget = targets.opponents[targets.opponents.length - 1];
+      if (lastTarget && lastTarget[0] + lastTarget[1] === i) {
+        lastTarget[1]++;
+      } else {
+        targets.opponents.push([i, 1]);
+      }
+    }
+
+    // 行を削除する際は、下の行から削除していかないと、行番号がずれてしまうので注意
+    for (const param of targets.match.toReversed()) {
+      this.matchesSheet.deleteRows(param[0] + 2, param[1]);
+    }
+    for (const param of targets.opponents.toReversed()) {
+      this.opponentsSheet.deleteRows(param[0] + 2, param[1]);
+    }
+    return true;
   }
 
   private deleteRowById(
