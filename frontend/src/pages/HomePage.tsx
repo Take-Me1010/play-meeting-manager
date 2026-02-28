@@ -117,7 +117,7 @@ export default function HomePage() {
                 <Box>
                   <Typography variant="h3">対戦表作成</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    新しい対戦を作成する（管理者）
+                    試合を作成・編集する
                   </Typography>
                 </Box>
               </Stack>
