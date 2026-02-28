@@ -4,7 +4,7 @@ export type User = {
     name: string;
     role: 'player' | 'observer';
     style: '環境' | 'カジュアル';
-    isAdmin: boolean;
+    isAdmin?: boolean;
 }
 
 export type Match = {

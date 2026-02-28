@@ -11,9 +11,7 @@ declare namespace google {
             getAllUsers(): void;
             updateUser(updates: any): void;
             getUserById(id: number): void;
-            getMatchesByRound(round: number): void;
             getAllMatches(): void;
-            getMatch(id: number): void;
             createMatch(round: number, playerIds: any): void;
             reportMatchResult(matchId: number, winnerId: number): void;
             getCurrentUserMatches(): void;

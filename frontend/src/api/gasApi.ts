@@ -9,9 +9,7 @@ interface GasApiInterface {
     updates: Partial<Pick<User, "name" | "role" | "style">>,
   ): Promise<User | null>;
   getUserById(id: number): Promise<User | null>;
-  getMatchesByRound(round: number): Promise<Match[]>;
   getAllMatches(): Promise<Match[]>;
-  getMatch(id: number): Promise<Match | null>;
   createMatch(round: number, playerIds: number[]): Promise<number>;
   reportMatchResult(matchId: number, winnerId: number): Promise<boolean>;
   getCurrentUserMatches(): Promise<Match[]>;
@@ -54,16 +52,8 @@ class ProductionGasApi implements GasApiInterface {
     return this.callGas("getUserById", id);
   }
 
-  async getMatchesByRound(round: number): Promise<Match[]> {
-    return this.callGas("getMatchesByRound", round);
-  }
-
   async getAllMatches(): Promise<Match[]> {
     return this.callGas("getAllMatches");
-  }
-
-  async getMatch(id: number): Promise<Match | null> {
-    return this.callGas("getMatch", id);
   }
 
   async createMatch(round: number, playerIds: number[]): Promise<number> {
@@ -136,19 +126,8 @@ class MockGasApi implements GasApiInterface {
     return this.fetchApi(`/getUserById?id=${id}`);
   }
 
-  async getMatchesByRound(round: number): Promise<Match[]> {
-    return this.fetchApi("/getMatchesByRound", {
-      method: "POST",
-      body: JSON.stringify({ round }),
-    });
-  }
-
   async getAllMatches(): Promise<Match[]> {
     return this.fetchApi("/getAllMatches");
-  }
-
-  async getMatch(id: number): Promise<Match | null> {
-    return this.fetchApi(`/getMatch?id=${id}`);
   }
 
   async createMatch(round: number, playerIds: number[]): Promise<number> {
