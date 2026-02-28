@@ -13,7 +13,6 @@ import {
   ProfilePage,
   MatchesPage,
   ReportPage,
-  ResultsPage,
 } from "./pages";
 import { DevPanel } from "./components/DevPanel";
 
@@ -109,14 +108,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ReportPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/results"
-        element={
-          <ProtectedRoute>
-            <ResultsPage />
           </ProtectedRoute>
         }
       />

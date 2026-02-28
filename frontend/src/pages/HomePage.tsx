@@ -12,7 +12,6 @@ import {
 import {
   Person as PersonIcon,
   SportsMma as BattleIcon,
-  Visibility as ViewIcon,
   Edit as EditIcon,
   AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
@@ -103,26 +102,6 @@ export default function HomePage() {
             </CardContent>
           </Card>
         )}
-
-        <Card>
-          <CardContent
-            sx={{
-              cursor: "pointer",
-              "&:hover": { bgcolor: "action.hover" },
-            }}
-            onClick={() => navigate("/results")}
-          >
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <ViewIcon sx={{ fontSize: 32, color: "success.main" }} />
-              <Box>
-                <Typography variant="h3">試合結果</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  これまでの試合結果を確認
-                </Typography>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
 
         {isAdmin && (
           <Card>
