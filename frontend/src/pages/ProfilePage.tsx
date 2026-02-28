@@ -52,7 +52,8 @@ export default function ProfilePage() {
     }
   };
 
-  const hasChanges = name !== user?.name || role !== user?.role || style !== user?.style;
+  const hasChanges =
+    name !== user?.name || role !== user?.role || style !== user?.style;
 
   return (
     <Layout>

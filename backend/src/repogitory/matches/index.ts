@@ -121,6 +121,69 @@ export class MatchRepository {
     return matchId;
   }
 
+  private deleteRowById(
+    sheet: GoogleAppsScript.Spreadsheet.Sheet,
+    id: number,
+  ): void {
+    const data = sheet.getDataRange().getValues();
+    for (let i = data.length - 1; i >= 1; i--) {
+      if (Number(data[i][0]) === id) {
+        sheet.deleteRow(i + 1);
+        break;
+      }
+    }
+  }
+
+  private deleteRowsByMatchId(
+    sheet: GoogleAppsScript.Spreadsheet.Sheet,
+    matchId: number,
+  ): void {
+    const data = sheet.getDataRange().getValues();
+    for (let i = data.length - 1; i >= 1; i--) {
+      if (Number(data[i][0]) === matchId) {
+        sheet.deleteRow(i + 1);
+      }
+    }
+  }
+
+  deleteMatch(matchId: number): boolean {
+    const match = this.findById(matchId);
+    if (!match) {
+      throw new Error(`試合ID ${matchId} が見つかりません`);
+    }
+    if (match.isFinished) {
+      throw new Error("終了済みの試合は削除できません");
+    }
+
+    this.deleteRowById(this.matchesSheet, matchId);
+    this.deleteRowsByMatchId(this.opponentsSheet, matchId);
+    this.deleteRowsByMatchId(this.resultsSheet, matchId);
+
+    return true;
+  }
+
+  updateMatchPlayers(matchId: number, playerIds: number[]): boolean {
+    if (playerIds.length !== 2) {
+      throw new Error("対戦は2人のプレイヤーで行われる必要があります");
+    }
+
+    const match = this.findById(matchId);
+    if (!match) {
+      throw new Error(`試合ID ${matchId} が見つかりません`);
+    }
+    if (match.isFinished) {
+      throw new Error("終了済みの試合のプレイヤーは変更できません");
+    }
+
+    this.deleteRowsByMatchId(this.opponentsSheet, matchId);
+
+    for (const playerId of playerIds) {
+      this.opponentsSheet.appendRow([matchId, playerId]);
+    }
+
+    return true;
+  }
+
   setMatchResult(matchId: number, winnerId: number): boolean {
     const resultsData = this.resultsSheet.getDataRange().getValues();
 

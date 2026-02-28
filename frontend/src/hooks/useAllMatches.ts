@@ -5,7 +5,7 @@ import type { Match } from "../types";
 export const useAllMatches = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const fetchMatches = useCallback(async () => {
     setIsLoading(true);
@@ -15,7 +15,7 @@ export const useAllMatches = () => {
       setMatches(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "対戦表の取得に失敗しました",
+        err instanceof Error ? err : new Error("対戦表の取得に失敗しました"),
       );
     } finally {
       setIsLoading(false);

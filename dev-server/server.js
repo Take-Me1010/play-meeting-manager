@@ -85,6 +85,36 @@ app.post('/api/createMatch', (req, res) => {
     res.json(newMatch.id);
 });
 
+app.post('/api/updateMatchPlayers', (req, res) => {
+    const { matchId, playerIds } = req.body;
+    const match = matches.find(m => m.id === matchId);
+
+    if (!match) {
+        return res.status(404).json({ error: '試合が見つかりません' });
+    }
+    if (match.isFinished) {
+        return res.status(400).json({ error: '終了済みの試合のプレイヤーは変更できません' });
+    }
+
+    match.players = users.filter(u => playerIds.includes(u.id));
+    res.json(true);
+});
+
+app.post('/api/deleteMatch', (req, res) => {
+    const { matchId } = req.body;
+    const index = matches.findIndex(m => m.id === matchId);
+
+    if (index === -1) {
+        return res.status(404).json({ error: '試合が見つかりません' });
+    }
+    if (matches[index].isFinished) {
+        return res.status(400).json({ error: '終了済みの試合は削除できません' });
+    }
+
+    matches.splice(index, 1);
+    res.json(true);
+});
+
 app.post('/api/reportMatchResult', (req, res) => {
     const { matchId, winnerId } = req.body;
     const match = matches.find(m => m.id === matchId);

@@ -1,17 +1,11 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from "react";
-import { AuthContext } from './context'
+import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { AuthContext } from "./context";
 import type { User } from "../../types";
 import { gasApi } from "../../api/gasApi";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,13 +15,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const currentUser = await gasApi.getCurrentUser();
-      setUser(currentUser);
-
       // 管理者権限の確認（開発環境のみ）
       if (import.meta.env.DEV) {
         const adminStatus = await gasApi.checkIsAdmin!();
-        setIsAdmin(adminStatus);
+        if (currentUser) currentUser.isAdmin = adminStatus;
       }
+      setUser(currentUser);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "ユーザー情報の取得に失敗しました",
@@ -44,7 +37,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ログイン（新規ユーザー登録）
   const login = useCallback(
-    async (name: string, role: "player" | "observer", style: "環境" | "カジュアル") => {
+    async (
+      name: string,
+      role: "player" | "observer",
+      style: "環境" | "カジュアル",
+    ) => {
       setIsLoading(true);
       setError(null);
       try {
@@ -89,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoading,
-        isAdmin,
+        isAdmin: user?.isAdmin || false,
         error,
         login,
         updateUser,

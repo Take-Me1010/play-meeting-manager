@@ -15,15 +15,13 @@ import {
   MatchesPage,
   ReportPage,
 } from "./pages";
-import CreateMatchesPage from "./pages/admin/CreateMatchesPage";
+import { CreateMatchesPage } from "./pages/admin/CreateMatchesPage";
 import { DevPanel } from "./components/DevPanel";
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAdmin } = useAuth();
   if (isLoading) {
-    return (
-        <CircularProgress />
-    );
+    return <CircularProgress />;
   }
 
   if (!user || !isAdmin) {

@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -54,7 +53,7 @@ export default function MatchesPage() {
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {error.message}
         </Alert>
       )}
 
@@ -90,16 +89,6 @@ export default function MatchesPage() {
 
 function MatchCard({ match }: { match: Match }) {
   const [player1, player2] = match.players;
-
-  if (!player1 || !player2) {
-    return <Card>
-      <CardContent>
-        <Typography color="error" textAlign="center">
-          対戦情報の取得に失敗しました: match ID={match.id}, players={match.players.map(p => p?.name).join(", ")}
-        </Typography>
-      </CardContent>
-    </Card>
-  }
 
   return (
     <Card>
