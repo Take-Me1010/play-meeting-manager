@@ -15,7 +15,23 @@ import {
   MatchesPage,
   ReportPage,
 } from "./pages";
+import CreateMatchesPage from "./pages/admin/CreateMatchesPage";
 import { DevPanel } from "./components/DevPanel";
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading, isAdmin } = useAuth();
+  if (isLoading) {
+    return (
+        <CircularProgress />
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 // 認証が必要なルートのラッパー
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -110,6 +126,14 @@ function AppRoutes() {
           <ProtectedRoute>
             <ReportPage />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/create-matches"
+        element={
+          <AdminRoute>
+            <CreateMatchesPage />
+          </AdminRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
