@@ -5,6 +5,29 @@ export class AdminMatchController {
   private userRepo = new UserRepository();
   private matchRepo = new MatchRepository(this.userRepo);
 
+  syncMatches(round: number, matches: { playerIds: number[] }[]): number[] {
+    if (matches.length === 0) {
+      throw new Error("少なくとも1試合は必要です");
+    }
+    let response: number[] = [];
+
+    const lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(3000);
+      const currentMatches = this.matchRepo.findByRound(round);
+      if (currentMatches.some((match) => match.isFinished)) {
+        throw new Error("終了した試合があるため、このラウンドは同期できません");
+      }
+      this.matchRepo.deleteBulkMatch(currentMatches.map((match) => match.id));
+      response = this.matchRepo.createBulkMatches(round, matches);
+    } catch (e) {
+      throw new Error("試合の同期に失敗しました。もう一度お試しください。");
+    } finally {
+      lock.releaseLock();
+    }
+    return response;
+  }
+
   createMatch(round: number, playerIds: number[]): number {
     if (playerIds.length !== 2) {
       throw new Error("対戦は2人のプレイヤーで行われる必要があります");
@@ -47,17 +70,7 @@ export class AdminMatchController {
 }
 
 // GAS用のグローバル関数をエクスポート
-export function createMatch(round: number, playerIds: number[]) {
+export function syncMatches(round: number, matches: { playerIds: number[] }[]) {
   const controller = new AdminMatchController();
-  return controller.createMatch(round, playerIds);
-}
-
-export function updateMatchPlayers(matchId: number, playerIds: number[]) {
-  const controller = new AdminMatchController();
-  return controller.updateMatchPlayers(matchId, playerIds);
-}
-
-export function deleteMatch(matchId: number) {
-  const controller = new AdminMatchController();
-  return controller.deleteMatch(matchId);
+  return controller.syncMatches(round, matches);
 }

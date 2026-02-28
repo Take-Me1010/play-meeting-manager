@@ -12,11 +12,7 @@ import {
   getCurrentUserMatches,
 } from "./controller/matchController";
 import { getAllUsers } from "./controller/admin/userController";
-import {
-  createMatch,
-  updateMatchPlayers,
-  deleteMatch,
-} from "./controller/admin/matchController";
+import { syncMatches } from "./controller/admin/matchController";
 
 global.doGet = doGet;
 global.initializeSpreadsheet = initializeSpreadsheet;
@@ -32,6 +28,4 @@ global.getCurrentUserMatches = getCurrentUserMatches;
 
 // admin functions
 global.getAllUsers = getAllUsers;
-global.createMatch = createMatch;
-global.updateMatchPlayers = updateMatchPlayers;
-global.deleteMatch = deleteMatch;
+global.syncMatches = syncMatches;
