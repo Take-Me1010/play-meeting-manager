@@ -11,24 +11,6 @@ export class MatchController {
     return matches;
   }
 
-  createMatch(round: number, playerIds: number[]): number {
-    if (playerIds.length !== 2) {
-      throw new Error("対戦は2人のプレイヤーで行われる必要があります");
-    }
-
-    for (const playerId of playerIds) {
-      const user = this.userRepo.findById(playerId);
-      if (!user) {
-        throw new Error(`ユーザーID ${playerId} が見つかりません`);
-      }
-      if (user.role !== "player") {
-        throw new Error(`ユーザーID ${playerId} は対戦者ではありません`);
-      }
-    }
-
-    return this.matchRepo.createMatch(round, playerIds);
-  }
-
   reportMatchResult(matchId: number, winnerId: number): boolean {
     const match = this.matchRepo.findById(matchId);
     if (!match) {
@@ -71,11 +53,6 @@ export class MatchController {
 export function getAllMatches() {
   const controller = new MatchController();
   return controller.getAllMatches();
-}
-
-export function createMatch(round: number, playerIds: number[]) {
-  const controller = new MatchController();
-  return controller.createMatch(round, playerIds);
 }
 
 export function reportMatchResult(matchId: number, winnerId: number) {

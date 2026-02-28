@@ -1,80 +1,83 @@
-import { UserRepository } from '../repogitory/users';
-import { type User } from '../entity';
+import { UserRepository } from "../repogitory/users";
+import { type User } from "../entity";
 
 export class UserController {
-    private userRepo = new UserRepository();
+  private userRepo = new UserRepository();
 
-    registerUser(name: string, role: 'player' | 'observer', style: '環境' | 'カジュアル'): User {
-        const email = Session.getActiveUser().getEmail();
+  registerUser(
+    name: string,
+    role: "player" | "observer",
+    style: "環境" | "カジュアル",
+  ): User {
+    const email = Session.getActiveUser().getEmail();
 
-        if (!email) {
-            throw new Error('ユーザーが認証されていません');
-        }
-
-        const existingUser = this.userRepo.findByEmail(email);
-        if (existingUser) {
-            throw new Error('このメールアドレスは既に登録されています');
-        }
-
-        return this.userRepo.create(name, email, role, style);
+    if (!email) {
+      throw new Error("ユーザーが認証されていません");
     }
 
-    getCurrentUser(): User | null {
-        const email = Session.getActiveUser().getEmail();
-
-        if (!email) {
-            return null;
-        }
-
-        return this.userRepo.findByEmail(email);
+    const existingUser = this.userRepo.findByEmail(email);
+    if (existingUser) {
+      throw new Error("このメールアドレスは既に登録されています");
     }
 
-    getAllUsers(): User[] {
-        return this.userRepo.findAll();
+    return this.userRepo.create(name, email, role, style);
+  }
+
+  getCurrentUser(): User | null {
+    const email = Session.getActiveUser().getEmail();
+
+    if (!email) {
+      return null;
     }
 
-    updateUser(updates: Partial<Pick<User, 'name' | 'role' | 'style'>>): User | null {
-        const email = Session.getActiveUser().getEmail();
+    return this.userRepo.findByEmail(email);
+  }
 
-        if (!email) {
-            throw new Error('ユーザーが認証されていません');
-        }
+  updateUser(
+    updates: Partial<Pick<User, "name" | "role" | "style">>,
+  ): User | null {
+    const email = Session.getActiveUser().getEmail();
 
-        const currentUser = this.userRepo.findByEmail(email);
-        if (!currentUser) {
-            throw new Error('ユーザーが見つかりません');
-        }
-
-        return this.userRepo.update(currentUser.id, updates);
+    if (!email) {
+      throw new Error("ユーザーが認証されていません");
     }
 
-    getUserById(id: number): User | null {
-        return this.userRepo.findById(id);
+    const currentUser = this.userRepo.findByEmail(email);
+    if (!currentUser) {
+      throw new Error("ユーザーが見つかりません");
     }
+
+    return this.userRepo.update(currentUser.id, updates);
+  }
+
+  getUserById(id: number): User | null {
+    return this.userRepo.findById(id);
+  }
 }
 
 // GAS用のグローバル関数をエクスポート
-export function registerUser(name: string, role: 'player' | 'observer', style: '環境' | 'カジュアル') {
-    const controller = new UserController();
-    return controller.registerUser(name, role, style);
+export function registerUser(
+  name: string,
+  role: "player" | "observer",
+  style: "環境" | "カジュアル",
+) {
+  const controller = new UserController();
+  return controller.registerUser(name, role, style);
 }
 
 export function getCurrentUser() {
-    const controller = new UserController();
-    return controller.getCurrentUser();
+  const controller = new UserController();
+  return controller.getCurrentUser();
 }
 
-export function getAllUsers() {
-    const controller = new UserController();
-    return controller.getAllUsers();
-}
-
-export function updateUser(updates: Partial<Pick<User, 'name' | 'role' | 'style'>>) {
-    const controller = new UserController();
-    return controller.updateUser(updates);
+export function updateUser(
+  updates: Partial<Pick<User, "name" | "role" | "style">>,
+) {
+  const controller = new UserController();
+  return controller.updateUser(updates);
 }
 
 export function getUserById(id: number) {
-    const controller = new UserController();
-    return controller.getUserById(id);
+  const controller = new UserController();
+  return controller.getUserById(id);
 }
