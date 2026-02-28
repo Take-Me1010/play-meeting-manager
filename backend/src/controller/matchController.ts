@@ -12,6 +12,8 @@ export class MatchController {
   }
 
   reportMatchResult(matchId: number, winnerId: number): boolean {
+    let response: boolean;
+
     const match = this.matchRepo.findById(matchId);
     if (!match) {
       throw new Error(`試合ID ${matchId} が見つかりません`);
@@ -27,8 +29,16 @@ export class MatchController {
     if (!isPlayerInMatch) {
       throw new Error("勝者は試合参加者である必要があります");
     }
-
-    return this.matchRepo.setMatchResult(matchId, winnerId);
+    const lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(3000);
+      response = this.matchRepo.setMatchResult(matchId, winnerId);
+    } catch (e) {
+      throw new Error("試合結果の報告に失敗しました。もう一度お試しください。");
+    } finally {
+      lock.releaseLock();
+    }
+    return response;
   }
 
   getCurrentUserMatches(): Match[] {
