@@ -12,7 +12,7 @@
     "dev:frontend": "pnpm --filter frontend run dev",
     "dev:server": "pnpm --filter dev-server run dev",
     "start:server": "pnpm --filter dev-server start",
-    "deploy": "clasp push",
+    "clasp:push": "clasp push",
     "clean": "rm -rf dist/*"
   },
   "devDependencies": {}

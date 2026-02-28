@@ -22,7 +22,7 @@ pnpm dev:frontend      # Vite dev server (http://127.0.0.1:5173)
 pnpm dev:server        # Express mock server (http://127.0.0.1:3001)
 
 # デプロイ
-pnpm deploy            # clasp push (dist/ → GAS)
+pnpm clasp:push            # clasp push (dist/ → GAS)
 
 # Lint
 pnpm --filter frontend lint
