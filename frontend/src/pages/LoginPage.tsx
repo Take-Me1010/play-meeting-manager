@@ -15,7 +15,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export default function LoginPage() {
       await login(name.trim(), role, style);
       navigate("/");
     } catch {
-      // エラーはAuthContextで処理される
+      // エラーはuseAuthで処理される
     }
   };
 

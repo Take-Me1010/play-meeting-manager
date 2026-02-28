@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { Layout } from "../components/Layout";
 
 export default function ProfilePage() {
@@ -48,7 +48,7 @@ export default function ProfilePage() {
       await updateUser({ name: name.trim(), role, style });
       setSuccess(true);
     } catch {
-      // エラーはAuthContextで処理される
+      // エラーはuseAuthで処理される
     }
   };
 

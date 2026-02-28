@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import { gasApi } from "../api/gasApi";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { type User } from "../types";
 
 export function DevPanel() {
@@ -83,7 +83,7 @@ export function DevPanel() {
     if ("switchUser" in gasApi) {
       try {
         await gasApi.switchUser!(selectedUserId);
-        await refresh(); // AuthContextを更新
+        await refresh();
       } catch (error) {
         console.error("ユーザー切り替えエラー:", error);
       }
@@ -94,7 +94,7 @@ export function DevPanel() {
     if ("setAdminMode" in gasApi) {
       try {
         await gasApi.setAdminMode!(!isAdmin);
-        await refresh(); // AuthContextを更新
+        await refresh();
       } catch (error) {
         console.error("管理者モード切り替えエラー:", error);
       }

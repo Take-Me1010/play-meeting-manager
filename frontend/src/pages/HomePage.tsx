@@ -15,7 +15,7 @@ import {
   Edit as EditIcon,
   AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { Layout } from "../components/Layout";
 
 export default function HomePage() {

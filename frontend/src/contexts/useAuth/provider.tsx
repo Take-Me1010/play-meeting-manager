@@ -1,25 +1,12 @@
 import {
-  createContext,
-  useContext,
   useState,
   useEffect,
   useCallback,
   type ReactNode,
 } from "react";
-import type { User } from "../types";
-import { gasApi } from "../api/gasApi";
-
-type AuthContextType = {
-  user: User | null;
-  isAdmin: boolean;
-  isLoading: boolean;
-  error: string | null;
-  login: (name: string, role: "player" | "observer", style: "環境" | "カジュアル") => Promise<void>;
-  updateUser: (updates: Partial<Pick<User, "name" | "role" | "style">>) => Promise<void>;
-  refresh: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextType | null>(null);
+import { AuthContext } from './context'
+import type { User } from "../../types";
+import { gasApi } from "../../api/gasApi";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -112,12 +99,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

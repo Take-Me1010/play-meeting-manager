@@ -6,7 +6,8 @@ import {
   Box,
 } from "@mui/material";
 import { theme } from "./theme";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { useAuth } from "./contexts/useAuth";
+import { AuthProvider } from "./contexts/useAuth/provider";
 import {
   LoginPage,
   HomePage,

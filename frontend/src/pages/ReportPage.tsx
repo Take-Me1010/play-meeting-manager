@@ -21,7 +21,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import type { Match, User } from "../types";
 import { gasApi } from "../api/gasApi";
 import { Layout } from "../components/Layout";

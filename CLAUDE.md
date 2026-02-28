@@ -6,28 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 デュエルマスターズの対戦を管理するGoogle Apps Script + Reactアプリケーション。スプレッドシートをデータストアとして使用し、対戦の組み合わせ・勝敗報告を管理する。
 
-## Commands
-
-```bash
-# 全体ビルド (backend dts生成 → backend → frontend)
-pnpm build
-
-# 個別ビルド
-pnpm build:frontend    # frontend のみ
-pnpm build:backend     # backend のみ
-pnpm gen-dts           # backend の型定義を frontend に生成
-
-# 開発サーバー
-pnpm dev:frontend      # Vite dev server (http://127.0.0.1:5173)
-pnpm dev:server        # Express mock server (http://127.0.0.1:3001)
-
-# デプロイ
-pnpm clasp:push            # clasp push (dist/ → GAS)
-
-# Lint
-pnpm --filter frontend lint
-```
-
 ## Architecture
 
 ### Monorepo Structure (pnpm workspace)
@@ -56,7 +34,7 @@ global関数は `google-script-dts-generator` で型定義を生成し、fronten
 
 - `src/App.tsx` - HashRouter によるルーティング、認証ガード
 - `src/pages/` - 各画面コンポーネント
-- `src/contexts/AuthContext.tsx` - 認証状態管理
+- `src/contexts/useAuth` - 認証状態管理
 - `src/components/DevPanel.tsx` - 開発用パネル
 - `src/@types/` - backend から生成された型定義
 
