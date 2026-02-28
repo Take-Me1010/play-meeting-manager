@@ -11,6 +11,8 @@ interface GasApiInterface {
   getUserById(id: number): Promise<User | null>;
   getAllMatches(): Promise<Match[]>;
   createMatch(round: number, playerIds: number[]): Promise<number>;
+  updateMatchPlayers(matchId: number, playerIds: number[]): Promise<boolean>;
+  deleteMatch(matchId: number): Promise<boolean>;
   reportMatchResult(matchId: number, winnerId: number): Promise<boolean>;
   getCurrentUserMatches(): Promise<Match[]>;
 }
@@ -58,6 +60,14 @@ class ProductionGasApi implements GasApiInterface {
 
   async createMatch(round: number, playerIds: number[]): Promise<number> {
     return this.callGas("createMatch", round, playerIds);
+  }
+
+  async updateMatchPlayers(matchId: number, playerIds: number[]): Promise<boolean> {
+    return this.callGas("updateMatchPlayers", matchId, playerIds);
+  }
+
+  async deleteMatch(matchId: number): Promise<boolean> {
+    return this.callGas("deleteMatch", matchId);
   }
 
   async reportMatchResult(matchId: number, winnerId: number): Promise<boolean> {
@@ -134,6 +144,20 @@ class MockGasApi implements GasApiInterface {
     return this.fetchApi("/createMatch", {
       method: "POST",
       body: JSON.stringify({ round, playerIds }),
+    });
+  }
+
+  async updateMatchPlayers(matchId: number, playerIds: number[]): Promise<boolean> {
+    return this.fetchApi("/updateMatchPlayers", {
+      method: "POST",
+      body: JSON.stringify({ matchId, playerIds }),
+    });
+  }
+
+  async deleteMatch(matchId: number): Promise<boolean> {
+    return this.fetchApi("/deleteMatch", {
+      method: "POST",
+      body: JSON.stringify({ matchId }),
     });
   }
 
