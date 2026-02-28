@@ -102,8 +102,16 @@ function createMatchResultsSheet(spreadsheet: GoogleAppsScript.Spreadsheet.Sprea
     sheet.setColumnWidth(3, 100); // finished
 }
 
+function getSpreadsheet() {
+    return SpreadsheetApp.getActiveSpreadsheet();
+}
+
+export function getOwner() {
+    return getSpreadsheet().getOwner();
+}
+
 export function getSheet(sheetName: string): GoogleAppsScript.Spreadsheet.Sheet {
-    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    const spreadsheet = getSpreadsheet();
     const sheet = spreadsheet.getSheetByName(sheetName);
 
     if (!sheet) {

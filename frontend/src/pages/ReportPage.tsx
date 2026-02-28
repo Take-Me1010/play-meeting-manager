@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -22,66 +22,30 @@ import {
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/useAuth";
-import type { Match, User } from "../types";
-import { gasApi } from "../api/gasApi";
+import type { User } from "../types";
 import { Layout } from "../components/Layout";
+import { useOwnMatch } from "../hooks/useOwnMatches";
 
 export default function ReportPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [myMatch, setMyMatch] = useState<Match | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { ownMatch, isLoading, fetchOwnMatch, fetchError, isReporting, reportError, reportMatchResult } = useOwnMatch();
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     winner: User | null;
   }>({ open: false, winner: null });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const fetchMyMatch = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const matches = await gasApi.getCurrentUserMatches();
-      // 未終了の試合を取得
-      const currentMatch = matches.find((m) => !m.isFinished);
-      setMyMatch(currentMatch || null);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "試合情報の取得に失敗しました",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchMyMatch();
-    }
-  }, [user, fetchMyMatch]);
 
   const handleWinnerSelect = (winner: User) => {
     setConfirmDialog({ open: true, winner });
   };
 
   const handleConfirmSubmit = async () => {
-    if (!confirmDialog.winner || !myMatch) return;
-
-    setIsSubmitting(true);
-    try {
-      await gasApi.reportMatchResult(myMatch.id, confirmDialog.winner.id);
-      setConfirmDialog({ open: false, winner: null });
-      // 成功後、試合情報を再取得
-      await fetchMyMatch();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "勝敗報告に失敗しました");
-    } finally {
-      setIsSubmitting(false);
-    }
+    if (!confirmDialog.winner || !ownMatch) return;
+    await reportMatchResult(confirmDialog.winner.id);
+    setConfirmDialog({ open: false, winner: null });
   };
 
-  const opponent = myMatch?.players.find((p) => p.id !== user?.id);
+  const opponent = ownMatch?.players.find((p) => p.id !== user?.id);
 
   return (
     <Layout>
@@ -92,14 +56,19 @@ export default function ReportPage() {
         <Typography variant="h2" component="h1" sx={{ flexGrow: 1 }}>
           勝敗報告
         </Typography>
-        <IconButton onClick={fetchMyMatch} disabled={isLoading}>
+        <IconButton onClick={fetchOwnMatch} disabled={isLoading}>
           <RefreshIcon />
         </IconButton>
       </Stack>
 
-      {error && (
+      {fetchError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {fetchError.message}
+        </Alert>
+      )}
+      {reportError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {reportError.message}
         </Alert>
       )}
 
@@ -107,7 +76,7 @@ export default function ReportPage() {
         <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
           <CircularProgress />
         </Box>
-      ) : !myMatch ? (
+      ) : !ownMatch ? (
         <Card>
           <CardContent>
             <Typography color="text.secondary" textAlign="center">
@@ -115,14 +84,14 @@ export default function ReportPage() {
             </Typography>
           </CardContent>
         </Card>
-      ) : myMatch.isFinished ? (
+      ) : ownMatch.isFinished ? (
         <Card>
           <CardContent>
             <Typography variant="h3" gutterBottom textAlign="center">
               試合終了
             </Typography>
             <Typography textAlign="center" color="text.secondary">
-              勝者: {myMatch.winner?.name}
+              勝者: {ownMatch.winner?.name}
             </Typography>
           </CardContent>
         </Card>
@@ -130,7 +99,7 @@ export default function ReportPage() {
         <Card>
           <CardContent>
             <Typography variant="h3" gutterBottom textAlign="center">
-              第{myMatch.round}回戦
+              第{ownMatch.round}回戦
             </Typography>
 
             <Stack spacing={1} sx={{ mb: 3 }}>
@@ -210,16 +179,16 @@ export default function ReportPage() {
         <DialogActions>
           <Button
             onClick={() => setConfirmDialog({ open: false, winner: null })}
-            disabled={isSubmitting}
+            disabled={isReporting}
           >
             キャンセル
           </Button>
           <Button
             variant="contained"
             onClick={handleConfirmSubmit}
-            disabled={isSubmitting}
+            disabled={isReporting}
           >
-            {isSubmitting ? <CircularProgress size={24} /> : "報告する"}
+            {isReporting ? <CircularProgress size={24} /> : "報告する"}
           </Button>
         </DialogActions>
       </Dialog>

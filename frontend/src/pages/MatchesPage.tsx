@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -18,33 +18,12 @@ import {
   EmojiEvents as TrophyIcon,
 } from "@mui/icons-material";
 import type { Match } from "../types";
-import { gasApi } from "../api/gasApi";
 import { Layout } from "../components/Layout";
+import { useAllMatches } from "../hooks/useAllMatches";
 
 export default function MatchesPage() {
   const navigate = useNavigate();
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchMatches = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await gasApi.getAllMatches();
-      setMatches(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "対戦表の取得に失敗しました",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchMatches();
-  }, [fetchMatches]);
+  const { matches, isLoading, error, refresh: fetchMatches } = useAllMatches();
 
   // ラウンドごとにグループ化
   const matchesByRound = matches.reduce(
@@ -111,6 +90,16 @@ export default function MatchesPage() {
 
 function MatchCard({ match }: { match: Match }) {
   const [player1, player2] = match.players;
+
+  if (!player1 || !player2) {
+    return <Card>
+      <CardContent>
+        <Typography color="error" textAlign="center">
+          対戦情報の取得に失敗しました: match ID={match.id}, players={match.players.map(p => p?.name).join(", ")}
+        </Typography>
+      </CardContent>
+    </Card>
+  }
 
   return (
     <Card>

@@ -1,8 +1,13 @@
-import { getSheet } from '../../spreadsheet';
+import * as sp from '../../spreadsheet';
 import { type User } from '../../entity';
 
 export class UserRepository {
-    private sheet = getSheet('users');
+    private sheet = sp.getSheet('users');
+    private isAdmin(email: string): boolean {
+        const owner = sp.getOwner();
+        const isAdmin = (owner && owner.getEmail() === email) ?? false;
+        return isAdmin;
+    }
 
     generateId(): number {
         const lastRow = this.sheet.getLastRow();
@@ -31,7 +36,8 @@ export class UserRepository {
                     id: Number(row[0]),
                     name: String(row[1]),
                     role: row[3] as 'player' | 'observer',
-                    style: row[4] as '環境' | 'カジュアル'
+                    style: row[4] as '環境' | 'カジュアル',
+                    isAdmin: this.isAdmin(email)
                 };
             }
         }
@@ -49,7 +55,8 @@ export class UserRepository {
                     id: Number(row[0]),
                     name: String(row[1]),
                     role: row[3] as 'player' | 'observer',
-                    style: row[4] as '環境' | 'カジュアル'
+                    style: row[4] as '環境' | 'カジュアル',
+                    isAdmin: this.isAdmin(String(row[2]))
                 };
             }
         }
@@ -68,7 +75,8 @@ export class UserRepository {
                     id: Number(row[0]),
                     name: String(row[1]),
                     role: row[3] as 'player' | 'observer',
-                    style: row[4] as '環境' | 'カジュアル'
+                    style: row[4] as '環境' | 'カジュアル',
+                    isAdmin: this.isAdmin(String(row[2]))
                 });
             }
         }
@@ -78,7 +86,7 @@ export class UserRepository {
 
     create(name: string, email: string, role: 'player' | 'observer', style: '環境' | 'カジュアル'): User {
         const id = this.generateId();
-        const newUser: User = { id, name, role, style };
+        const newUser: User = { id, name, role, style, isAdmin: this.isAdmin(email) };
 
         this.sheet.appendRow([id, name, email, role, style]);
 
@@ -110,7 +118,8 @@ export class UserRepository {
                     id: Number(updatedRow[0]),
                     name: String(updatedRow[1]),
                     role: updatedRow[3] as 'player' | 'observer',
-                    style: updatedRow[4] as '環境' | 'カジュアル'
+                    style: updatedRow[4] as '環境' | 'カジュアル',
+                    isAdmin: this.isAdmin(String(updatedRow[2]))
                 };
             }
         }
