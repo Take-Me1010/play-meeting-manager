@@ -24,9 +24,18 @@ type Props = {
 };
 
 export function SummaryModal({ open, onClose, players, rounds }: Props) {
-  // player id ペア -> "round-matchIndex" のマップを構築
+  // player id ペア -> "round-matchIndex" ラベルの配列マップを構築
   const matchMap = useMemo(() => {
-    const map = new Map<string, string>();
+    const map = new Map<string, string[]>();
+
+    const push = (key: string, label: string) => {
+      const labels = map.get(key);
+      if (labels) {
+        labels.push(label);
+      } else {
+        map.set(key, [label]);
+      }
+    };
 
     for (const [roundStr, roundData] of Object.entries(rounds)) {
       const round = Number(roundStr);
@@ -34,8 +43,8 @@ export function SummaryModal({ open, onClose, players, rounds }: Props) {
         const [playerA, playerB] = draft.slots;
         if (playerA && playerB) {
           const label = `${round}-${index + 1}`;
-          map.set(`${playerA.id}-${playerB.id}`, label);
-          map.set(`${playerB.id}-${playerA.id}`, label);
+          push(`${playerA.id}-${playerB.id}`, label);
+          push(`${playerB.id}-${playerA.id}`, label);
         }
       });
     }
@@ -79,12 +88,12 @@ export function SummaryModal({ open, onClose, players, rounds }: Props) {
                       </TableCell>
                     );
                   }
-                  const label = matchMap.get(
+                  const labels = matchMap.get(
                     `${rowPlayer.id}-${colPlayer.id}`,
                   );
                   return (
                     <TableCell key={colPlayer.id} align="center">
-                      {label ?? ""}
+                      {labels ? labels.join(" / ") : ""}
                     </TableCell>
                   );
                 })}
