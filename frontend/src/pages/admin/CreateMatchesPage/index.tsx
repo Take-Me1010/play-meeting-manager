@@ -57,14 +57,13 @@ const Content: React.FC<{
 }> = ({ users, matches, onSave }) => {
   const navigate = useNavigate();
 
-  const initialRounds = buildRoundsFromMatches(matches, users);
-  const initialRoundKeys = Object.keys(initialRounds).map(Number);
-
-  const [rounds, setRounds] =
-    useState<Record<number, RoundData>>(initialRounds);
-  const [currentRound, setCurrentRound] = useState(
-    Math.min(...initialRoundKeys),
+  const [rounds, setRounds] = useState<Record<number, RoundData>>(
+    () => buildRoundsFromMatches(matches, users),
   );
+  const [currentRound, setCurrentRound] = useState(() => {
+    const initial = buildRoundsFromMatches(matches, users);
+    return Math.min(...Object.keys(initial).map(Number));
+  });
   const [summaryOpen, setSummaryOpen] = useState(false);
 
   function switchRound(round: number) {

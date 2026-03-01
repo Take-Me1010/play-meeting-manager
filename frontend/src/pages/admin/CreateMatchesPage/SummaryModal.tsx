@@ -14,6 +14,8 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import type { User } from "../../../types";
 import type { RoundData } from "./types";
 
+const GRAY_CELL_SX = { bgcolor: "action.hover" } as const;
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -71,7 +73,7 @@ export function SummaryModal({ open, onClose, players, rounds }: Props) {
                       <TableCell
                         key={colPlayer.id}
                         align="center"
-                        sx={{ bgcolor: "action.hover" }}
+                        sx={GRAY_CELL_SX}
                       >
                         {rowPlayer.id === colPlayer.id ? "—" : ""}
                       </TableCell>
