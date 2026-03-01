@@ -9,6 +9,7 @@ import { PageHeader } from "./PageHeader";
 import { MatchEditor } from "./MatchEditor";
 import type { MatchDraft, RoundData } from "./types";
 import { useAdminMatch } from "../../../hooks/admin/useMatch";
+import { SummaryModal } from "./SummaryModal";
 
 /** API から取得した matches と players を元に回戦別の編集状態を構築する */
 function buildRoundsFromMatches(
@@ -48,6 +49,7 @@ function buildRoundsFromMatches(
   return rounds;
 }
 
+// TODO: 既に試合済みの組み合わせがあればメッセージを出すようにする
 const Content: React.FC<{
   users: User[];
   matches: Match[];
@@ -63,6 +65,7 @@ const Content: React.FC<{
   const [currentRound, setCurrentRound] = useState(
     Math.min(...initialRoundKeys),
   );
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   function switchRound(round: number) {
     setCurrentRound(round);
@@ -92,11 +95,18 @@ const Content: React.FC<{
         maxRound={maxRound}
         onRoundChange={switchRound}
         onBack={() => navigate("/")}
+        onSummary={() => setSummaryOpen(true)}
       />
       <MatchEditor
         key={currentRound}
         initialData={rounds[currentRound]}
         onSave={handleSave}
+      />
+      <SummaryModal
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        players={users}
+        rounds={rounds}
       />
     </>
   );

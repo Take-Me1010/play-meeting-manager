@@ -1,4 +1,5 @@
 import {
+  Button,
   IconButton,
   MenuItem,
   Select,
@@ -13,6 +14,7 @@ type Props = {
   maxRound: number;
   onRoundChange: (round: number) => void;
   onBack: () => void;
+  onSummary: () => void;
 };
 
 export function PageHeader({
@@ -21,6 +23,7 @@ export function PageHeader({
   maxRound,
   onRoundChange,
   onBack,
+  onSummary,
 }: Props) {
   return (
     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
@@ -30,6 +33,9 @@ export function PageHeader({
       <Typography variant="h2" component="h1" sx={{ flexGrow: 1 }}>
         対戦表作成
       </Typography>
+      <Button variant="outlined" onClick={onSummary}>
+        サマリ
+      </Button>
       <Select
         value={currentRound}
         onChange={(e) => onRoundChange(Number(e.target.value))}
