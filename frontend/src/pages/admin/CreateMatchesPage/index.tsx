@@ -49,7 +49,6 @@ function buildRoundsFromMatches(
   return rounds;
 }
 
-// TODO: 既に試合済みの組み合わせがあればメッセージを出すようにする
 const Content: React.FC<{
   users: User[];
   matches: Match[];
@@ -57,14 +56,32 @@ const Content: React.FC<{
 }> = ({ users, matches, onSave }) => {
   const navigate = useNavigate();
 
-  const [rounds, setRounds] = useState<Record<number, RoundData>>(
-    () => buildRoundsFromMatches(matches, users),
+  const [rounds, setRounds] = useState<Record<number, RoundData>>(() =>
+    buildRoundsFromMatches(matches, users),
   );
   const [currentRound, setCurrentRound] = useState(() => {
     const initial = buildRoundsFromMatches(matches, users);
     return Math.min(...Object.keys(initial).map(Number));
   });
   const [summaryOpen, setSummaryOpen] = useState(false);
+
+  const finishedPairs = useMemo(() => {
+    const pairs = new Set<`${number}-${number}`>();
+    for (const match of matches) {
+      // 過去の試合のみ参照する
+      if (match.round >= currentRound) {
+        continue;
+      }
+      if (match.isFinished) {
+        const [a, b] = match.players;
+        if (a && b) {
+          pairs.add(`${a.id}-${b.id}`);
+          pairs.add(`${b.id}-${a.id}`);
+        }
+      }
+    }
+    return pairs;
+  }, [matches, currentRound]);
 
   function switchRound(round: number) {
     setCurrentRound(round);
@@ -100,6 +117,7 @@ const Content: React.FC<{
         key={currentRound}
         initialData={rounds[currentRound]}
         onSave={handleSave}
+        finishedPairs={finishedPairs}
       />
       <SummaryModal
         open={summaryOpen}
