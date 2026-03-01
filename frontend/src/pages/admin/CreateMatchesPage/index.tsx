@@ -9,6 +9,7 @@ import { PageHeader } from "./PageHeader";
 import { MatchEditor } from "./MatchEditor";
 import type { MatchDraft, RoundData } from "./types";
 import { useAdminMatch } from "../../../hooks/admin/useMatch";
+import { SummaryModal } from "./SummaryModal";
 
 /** API から取得した matches と players を元に回戦別の編集状態を構築する */
 function buildRoundsFromMatches(
@@ -48,6 +49,7 @@ function buildRoundsFromMatches(
   return rounds;
 }
 
+// TODO: 既に試合済みの組み合わせがあればメッセージを出すようにする
 const Content: React.FC<{
   users: User[];
   matches: Match[];
@@ -55,14 +57,14 @@ const Content: React.FC<{
 }> = ({ users, matches, onSave }) => {
   const navigate = useNavigate();
 
-  const initialRounds = buildRoundsFromMatches(matches, users);
-  const initialRoundKeys = Object.keys(initialRounds).map(Number);
-
-  const [rounds, setRounds] =
-    useState<Record<number, RoundData>>(initialRounds);
-  const [currentRound, setCurrentRound] = useState(
-    Math.min(...initialRoundKeys),
+  const [rounds, setRounds] = useState<Record<number, RoundData>>(
+    () => buildRoundsFromMatches(matches, users),
   );
+  const [currentRound, setCurrentRound] = useState(() => {
+    const initial = buildRoundsFromMatches(matches, users);
+    return Math.min(...Object.keys(initial).map(Number));
+  });
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   function switchRound(round: number) {
     setCurrentRound(round);
@@ -92,11 +94,18 @@ const Content: React.FC<{
         maxRound={maxRound}
         onRoundChange={switchRound}
         onBack={() => navigate("/")}
+        onSummary={() => setSummaryOpen(true)}
       />
       <MatchEditor
         key={currentRound}
         initialData={rounds[currentRound]}
         onSave={handleSave}
+      />
+      <SummaryModal
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        players={users}
+        rounds={rounds}
       />
     </>
   );
