@@ -26,9 +26,9 @@ type Props = {
 export function SummaryModal({ open, onClose, players, rounds }: Props) {
   // player id ペア -> "round-matchIndex" ラベルの配列マップを構築
   const matchMap = useMemo(() => {
-    const map = new Map<string, string[]>();
+    const map = new Map<`${number}-${number}`, string[]>();
 
-    const push = (key: string, label: string) => {
+    const push = (key: `${number}-${number}`, label: string) => {
       const labels = map.get(key);
       if (labels) {
         labels.push(label);

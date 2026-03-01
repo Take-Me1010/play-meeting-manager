@@ -9,7 +9,8 @@ import type { RoundData } from "./types";
 export const MatchEditor: React.FC<{
   initialData: RoundData;
   onSave: (data: RoundData) => void;
-}> = ({ initialData, onSave }) => {
+  finishedPairs?: Set<`${number}-${number}`>;
+}> = ({ initialData, onSave, finishedPairs }) => {
   const [isEditing, setIsEditing] = useState(false);
   // 確定済みの表示データ。保存時に更新される。
   const [viewData, setViewData] = useState<RoundData>(initialData);
@@ -116,6 +117,7 @@ export const MatchEditor: React.FC<{
         <MatchEditArea
           drafts={currentData.drafts}
           isEditing={isEditing}
+          finishedPairs={finishedPairs}
           onSlotDrop={handleSlotDrop}
           onAddMatch={addMatch}
           onRemoveMatch={removeMatch}

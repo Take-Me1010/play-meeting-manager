@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   IconButton,
   Stack,
   Typography,
@@ -14,15 +15,11 @@ import { DNDContainer, DNDDraggable } from "../../../components/dnd";
 import { PlayerItem } from "./PlayerItem";
 import type { MatchDraft } from "./types";
 
-function SlotContainer({
-  user,
-  isEditing,
-  onDrop,
-}: {
+const SlotContainer: React.FC<{
   user: User | null;
   isEditing: boolean;
   onDrop: (dr: DropResult) => void;
-}) {
+}> = ({ user, isEditing, onDrop }) => {
   if (!isEditing) {
     return (
       <Box
@@ -91,23 +88,93 @@ function SlotContainer({
       )}
     </Box>
   );
-}
+};
 
-type Props = {
+const MatchCard: React.FC<{
+  draft: MatchDraft;
+  index: number;
+  isEditing: boolean;
+  isPlayedBefore: boolean;
+  onSlotDrop: (matchId: string, slotIndex: 0 | 1, dr: DropResult) => void;
+  onRemoveMatch: (matchId: string) => void;
+}> = ({
+  draft,
+  index,
+  isEditing,
+  isPlayedBefore,
+  onSlotDrop,
+  onRemoveMatch,
+}) => {
+  return (
+    <Card key={draft.id}>
+      <CardContent>
+        <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ flexGrow: 1, fontWeight: "bold" }}
+          >
+            試合 {index + 1}
+          </Typography>
+          {isPlayedBefore && (
+            <Chip
+              label="試合済みの組み合わせ"
+              color="warning"
+              size="small"
+              sx={{ mr: isEditing ? 1 : 0 }}
+            />
+          )}
+          {isEditing && (
+            <IconButton
+              size="small"
+              onClick={() => onRemoveMatch(draft.id)}
+              color="error"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
+        </Stack>
+
+        <SlotContainer
+          user={draft.slots[0]}
+          isEditing={isEditing}
+          onDrop={(dr) => onSlotDrop(draft.id, 0, dr)}
+        />
+
+        <Box sx={{ textAlign: "center", my: 1 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            fontWeight="bold"
+          >
+            VS
+          </Typography>
+        </Box>
+
+        <SlotContainer
+          user={draft.slots[1]}
+          isEditing={isEditing}
+          onDrop={(dr) => onSlotDrop(draft.id, 1, dr)}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+export const MatchEditArea: React.FC<{
   drafts: MatchDraft[];
   isEditing: boolean;
+  finishedPairs?: Set<string>;
   onSlotDrop: (matchId: string, slotIndex: 0 | 1, dr: DropResult) => void;
   onAddMatch: () => void;
   onRemoveMatch: (matchId: string) => void;
-};
-
-export function MatchEditArea({
+}> = ({
   drafts,
   isEditing,
+  finishedPairs,
   onSlotDrop,
   onAddMatch,
   onRemoveMatch,
-}: Props) {
+}) => {
   return (
     <Box sx={{ flex: "1 1 60%", minWidth: 0 }}>
       <Typography variant="h3" sx={{ mb: 2 }}>
@@ -123,51 +190,26 @@ export function MatchEditArea({
       )}
 
       <Stack spacing={2}>
-        {drafts.map((draft, index) => (
-          <Card key={draft.id}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ flexGrow: 1, fontWeight: "bold" }}
-                >
-                  試合 {index + 1}
-                </Typography>
-                {isEditing && (
-                  <IconButton
-                    size="small"
-                    onClick={() => onRemoveMatch(draft.id)}
-                    color="error"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </Stack>
+        {drafts.map((draft, index) => {
+          const [a, b] = draft.slots;
+          const isPlayedBefore =
+            !!finishedPairs &&
+            !!a &&
+            !!b &&
+            finishedPairs.has(`${a.id}-${b.id}`);
 
-              <SlotContainer
-                user={draft.slots[0]}
-                isEditing={isEditing}
-                onDrop={(dr) => onSlotDrop(draft.id, 0, dr)}
-              />
-
-              <Box sx={{ textAlign: "center", my: 1 }}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight="bold"
-                >
-                  VS
-                </Typography>
-              </Box>
-
-              <SlotContainer
-                user={draft.slots[1]}
-                isEditing={isEditing}
-                onDrop={(dr) => onSlotDrop(draft.id, 1, dr)}
-              />
-            </CardContent>
-          </Card>
-        ))}
+          return (
+            <MatchCard
+              key={draft.id}
+              draft={draft}
+              index={index}
+              isEditing={isEditing}
+              isPlayedBefore={isPlayedBefore}
+              onSlotDrop={onSlotDrop}
+              onRemoveMatch={onRemoveMatch}
+            />
+          );
+        })}
       </Stack>
 
       {isEditing && (
@@ -183,4 +225,4 @@ export function MatchEditArea({
       )}
     </Box>
   );
-}
+};
